@@ -16,7 +16,7 @@
 /*=====[Inclusions of public function dependencies]==========================*/
 #include <stdint.h>
 
-#include "../../tp/inc/uartManager.h"
+#include "uartManager.h"
 
 /*=====[C++ - begin]=========================================================*/
 

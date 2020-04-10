@@ -9,13 +9,12 @@
  */
 
 /*=====[Inclusion of own header]=============================================*/
-#include "../../tp/inc/sep.h"
-
 #include <string.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "sep.h"
 
 /*=====[Inclusions of private function dependencies]=========================*/
 

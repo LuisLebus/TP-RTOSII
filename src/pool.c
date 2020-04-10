@@ -9,12 +9,11 @@
  */
  
 /*=====[Inclusion of own header]=============================================*/
-#include "../../tp/inc/pool.h"
-
 #include <string.h>
 
 #include "FreeRTOS.h"
 
+#include "pool.h"
 
 /*=====[Inclusions of private function dependencies]=========================*/
 

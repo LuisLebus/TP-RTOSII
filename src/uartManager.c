@@ -9,18 +9,17 @@
  */
  
 /*=====[Inclusion of own header]=============================================*/
-#include "../../tp/inc/uartManager.h"
-
 #include <string.h>
 #include <stdlib.h>
 
-#include "../../tp/inc/crc8.h"
-#include "../../tp/inc/pool.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "timers.h"
 
+#include "uartManager.h"
+#include "crc8.h"
+#include "pool.h"
 
 /*=====[Inclusions of private function dependencies]=========================*/
 

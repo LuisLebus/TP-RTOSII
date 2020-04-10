@@ -5,12 +5,12 @@
  *===========================================================================*/
 
 /*=====[Inclusions of function dependencies]=================================*/
-#include "../../tp/inc/app.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
 #include "sapi.h"
 
+#include "app.h"
 
 /*=====[Definition macros of private constants]==============================*/
 

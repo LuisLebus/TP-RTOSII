@@ -9,16 +9,15 @@
  */
 
 /*=====[Inclusion of own header]=============================================*/
-#include "../../tp/inc/app.h"
-
 #include <string.h>
 #include <ctype.h>
 
-#include "../../tp/inc/sep.h"
-#include "../../tp/inc/uartManager.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "app.h"
+#include "sep.h"
+#include "uartManager.h"
 
 /*=====[Inclusions of private function dependencies]=========================*/
 
