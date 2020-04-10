@@ -16,7 +16,7 @@
 /*=====[Inclusions of public function dependencies]==========================*/
 #include <stdint.h>
 
-#include "uartManager.h"
+#include "../../tp/inc/uartManager.h"
 
 /*=====[C++ - begin]=========================================================*/
 
@@ -31,7 +31,8 @@ extern "C" {
 /*=====[Definitions of public data types]====================================*/
 typedef enum {
 	TO_LOWER = 0,
-	TO_UPPER
+	TO_UPPER,
+	TO_ERROR
 }sepEvent_t;
 
 typedef struct {
@@ -39,19 +40,20 @@ typedef struct {
 	uint8_t* msg;
 }sepData_t;
 
-typedef void* sepHandle_t;
+typedef struct {
+	uartManagerHandle_t uartHandle;
+}sepHandle_t;
 
 typedef enum {
-	SEP_OK = 0,
-	SEP_ERROR,
+	SEP_ERROR = 0,
+	SEP_OK,
 }sepError_t;
 
 /*=====[Prototypes (declarations) of public functions]=======================*/
-sepHandle_t sepInit(uartManagerConfig_t config);
-void sepDeinit(sepHandle_t handle);
+void sepInit(sepHandle_t* me, uartManagerHandle_t uartHandle);
 
-sepError_t sepGet(sepHandle_t handle, sepData_t* data, uint32_t* size, uint32_t timeout);
-sepError_t sepPut(sepHandle_t handle, sepData_t* data, uint32_t timeout);
+sepError_t sepGet(sepHandle_t* me, sepData_t* data, uint32_t timeout);
+sepError_t sepPut(sepHandle_t* me, sepData_t* data, uint32_t timeout);
 
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 

@@ -10,10 +10,11 @@
 
 /*=====[Avoid multiple inclusion - begin]====================================*/
 
-#ifndef _APP_H_
-#define _APP_H_
+#ifndef _CRC8_H_
+#define _CRC8_H_
 
 /*=====[Inclusions of public function dependencies]==========================*/
+#include <stdint.h>
 
 /*=====[C++ - begin]=========================================================*/
 
@@ -28,7 +29,7 @@ extern "C" {
 /*=====[Definitions of public data types]====================================*/
 
 /*=====[Prototypes (declarations) of public functions]=======================*/
-void appInit(void);
+uint8_t crc8Calculate(uint8_t val, void* data, uint8_t len);
 
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
@@ -40,4 +41,4 @@ void appInit(void);
 
 /*=====[Avoid multiple inclusion - end]======================================*/
 
-#endif /* _APP_H_ */
+#endif /* _CRC8_H_ */

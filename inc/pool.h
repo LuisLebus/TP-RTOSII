@@ -40,16 +40,16 @@ typedef struct {
 }pool_t;
 
 typedef enum {
-	POOL_OK = 0,
-	POOL_ERROR
+	POOL_ERROR = 0,
+	POOL_OK
 }poolError_t;
 
 /*=====[Prototypes (declarations) of public functions]=======================*/
 poolError_t poolInit(pool_t* me, uint32_t blocksSize, uint32_t blocksNum);
 void poolDeinit(pool_t* me);
 
-void* poolGet(pool_t* p);
-void poolPut(pool_t* p, void* ptr);
+void* poolGet(pool_t* me);
+void poolPut(pool_t* me, void* ptr);
 
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 

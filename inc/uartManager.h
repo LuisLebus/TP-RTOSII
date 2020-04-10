@@ -38,12 +38,12 @@ typedef struct {
 typedef uint32_t uartManagerHandle_t;
 
 typedef enum {
-	UART_MANAGER_OK = 0,
-	UART_MANAGER_ERROR,
+	UART_MANAGER_ERROR = 0,
+	UART_MANAGER_OK,
 }uartManagerError_t;
 
 /*=====[Prototypes (declarations) of public functions]=======================*/
-uartManagerError_t uartManagerInit(uartManagerHandle_t* handler, uartManagerConfig_t config);
+uartManagerError_t uartManagerInit(uartManagerHandle_t* handle, uartManagerConfig_t config);
 void uartManagerDeinit(uartManagerHandle_t handle);
 
 uartManagerError_t uartManagerGet(uartManagerHandle_t handle, uint8_t* msg, uint32_t* size, uint32_t timeout);

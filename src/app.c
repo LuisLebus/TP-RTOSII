@@ -7,16 +7,18 @@
  * Version: 0.0.0
  * Creation Date: YYYY/MM/DD
  */
- 
+
 /*=====[Inclusion of own header]=============================================*/
+#include "../../tp/inc/app.h"
+
+#include <string.h>
 #include <ctype.h>
 
+#include "../../tp/inc/sep.h"
+#include "../../tp/inc/uartManager.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "app.h"
-#include "uartManager.h"
-#include "sep.h"
 
 /*=====[Inclusions of private function dependencies]=========================*/
 
@@ -39,9 +41,9 @@ static void rxTask(void *pvParameters);
 void appInit(void)
 {
 	uartManagerConfig_t uartConfig;
-	uartManagerHandle_t uartHandle;
+	static uartManagerHandle_t uartHandle;
 
-	sepHandle_t sepHandle;
+	static sepHandle_t sepHandle;
 
 	uartConfig.baudRate = 115200;
 	uartConfig.uart = UART_USB;
@@ -51,13 +53,13 @@ void appInit(void)
 
 	uartManagerInit(&uartHandle, uartConfig);
 
-	sepHandle = sepInit(uartConfig);
+	sepInit(&sepHandle, uartHandle);
 
 	xTaskCreate(
 			rxTask,
 			(char*)"rxTask",
 			configMINIMAL_STACK_SIZE * 2,
-			sepHandle,
+			(void*)&sepHandle,
 			(tskIDLE_PRIORITY + 1UL),
 			NULL);
 }
@@ -67,42 +69,56 @@ void appInit(void)
 /*=====[Implementations of private functions]================================*/
 static void rxTask(void *pvParameters)
 {
-	sepHandle_t handle = (sepHandle_t)pvParameters;
+	sepHandle_t handle = *(sepHandle_t*)pvParameters;
 	uint32_t size;
 	sepData_t data;
 
+	uint8_t* ptr;
 
 	while(1)
 	{
-		if( sepGet(handle, NULL, &size, portMAX_DELAY) )
+		if( sepGet(&handle, &data, UINT32_MAX) )
 		{
-			//TODO: asignar memoria para size, algo asi
-//			data.msg = malloc(size)
-
-			sepGet(handle, &data, NULL, portMAX_DELAY);
+			ptr = data.msg;
 
 			switch(data.event)
 			{
 				case TO_LOWER:
-					while( *data.msg != '\0' )
+					while( *ptr != '\0' )
 					{
-						*data.msg = tolower( *data.msg );
-						data.msg++;
+						if( (*ptr >= 'A') && (*ptr <= 'Z') )
+						{
+							*ptr = tolower( *ptr );
+							ptr++;
+						}
+						else
+						{
+							strcpy(data.msg, "ERROR\0");
+							data.event = TO_ERROR;
+							break;
+						}
 					}
 					break;
 				case TO_UPPER:
-					while( *data.msg != '\0' )
+					while( *ptr != '\0' )
 					{
-						*data.msg = toupper( *data.msg );
-						data.msg++;
+						if( (*ptr >= 'a') && (*ptr <= 'z') )
+						{
+							*ptr = toupper( *ptr );
+							ptr++;
+						}
+						else
+						{
+							strcpy(data.msg, "ERROR\0");
+							data.event = TO_ERROR;
+							break;
+						}
 					}
+
 					break;
 			}
 
-			sepPut(handle, &data, 0);
-
-			//TODO: liberar la memoria adignada
-//			free(data.msg)
+			sepPut(&handle, &data, 0);
 		}
 	}
 }

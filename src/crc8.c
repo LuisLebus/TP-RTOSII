@@ -9,23 +9,19 @@
  */
  
 /*=====[Inclusion of own header]=============================================*/
-#include "../../tp/inc/pool.h"
-
-#include <string.h>
-
-#include "FreeRTOS.h"
-
+#include "crc8.h"
 
 /*=====[Inclusions of private function dependencies]=========================*/
 
 /*=====[Definition macros of private constants]==============================*/
 
 /*=====[Private function-like macros]========================================*/
-#ifndef max
-#define max(a,b) ((a)<(b)?(b):(a))
-#endif
 
 /*=====[Definitions of private data types]===================================*/
+static const uint8_t crc8SmallTable[16] = {
+    0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15,
+    0x38, 0x3f, 0x36, 0x31, 0x24, 0x23, 0x2a, 0x2d
+};
 
 /*=====[Definitions of external public global variables]=====================*/
 
@@ -36,58 +32,19 @@
 /*=====[Prototypes (declarations) of private functions]======================*/
 
 /*=====[Implementations of public functions]=================================*/
-poolError_t poolInit(pool_t* me, uint32_t blocksSize, uint32_t blocksNum)
+uint8_t crc8Calculate(uint8_t val, void* data, uint8_t len)
 {
-	me->blocksSize = max(blocksSize, sizeof(poolFree_t));
-	me->blocksNum = blocksNum;
+	uint32_t i;
+	uint8_t* p = data;
 
-	me->blockMem = (uint8_t*)pvPortMalloc( me->blocksNum * me->blocksSize );
-	if(me->blockMem == NULL)
-		return POOL_ERROR;
-
-	me->blocksUsed = 0;
-	me->pFree = NULL;
-
-	return POOL_OK;
-}
-
-void poolDeinit(pool_t* me)
-{
-	vPortFree(me->blockMem);
-	me->blockMem = NULL;
-}
-
-void* poolGet(pool_t* me)
-{
-	void* ret = NULL;
-
-	if(me->pFree != NULL)
+	for(i=0; i<len; i++)
 	{
-		ret = me->pFree;
-		me->pFree = me->pFree->next;
-
-		memset(ret, 0, me->blocksSize);
-	}
-	else
-	{
-		if(me->blocksUsed < me->blocksNum)
-		{
-			ret = me->blockMem + me->blocksUsed * me->blocksSize;
-			me->blocksUsed++;
-
-			memset(ret, 0, me->blocksSize);
-		}
+		val ^= p[i];
+		val = (val << 4) ^ crc8SmallTable[val >> 4];
+		val = (val << 4) ^ crc8SmallTable[val >> 4];
 	}
 
-	return ret;
-}
-
-void poolPut(pool_t* me, void* ptr)
-{
-	poolFree_t* pFree = me->pFree;
-
-	me->pFree = (poolFree_t*)ptr;
-	me->pFree->next = pFree;
+	return val;
 }
 
 /*=====[Implementations of interrupt functions]==============================*/

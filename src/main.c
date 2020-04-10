@@ -5,10 +5,10 @@
  *===========================================================================*/
 
 /*=====[Inclusions of function dependencies]=================================*/
+#include "../../tp/inc/app.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "app.h"
 #include "sapi.h"
 
 
@@ -19,6 +19,16 @@
 /*=====[Definitions of public global variables]==============================*/
 
 /*=====[Definitions of private global variables]=============================*/
+static void ledTask(void *pvParameters)
+{
+	while(1)
+	{
+		gpioToggle(LED3);
+
+		vTaskDelay( 100 / portTICK_RATE_MS);
+	}
+}
+
 
 /*=====[Main function, program entry point after power on or reset]==========*/
 
@@ -27,6 +37,14 @@ int main( void )
 	boardInit();
 
 	appInit();
+
+	xTaskCreate(
+				ledTask,
+				(char*)"ledTask",
+				configMINIMAL_STACK_SIZE * 2,
+				NULL,
+				(tskIDLE_PRIORITY + 1UL),
+				NULL);
 
 	vTaskStartScheduler();
 

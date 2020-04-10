@@ -7,12 +7,15 @@
  * Version: 0.0.0
  * Creation Date: YYYY/MM/DD
  */
- 
-/*=====[Inclusion of own header]=============================================*/
-//#include "FreeRTOS.h"
-//#include "task.h"
 
-#include "sep.h"
+/*=====[Inclusion of own header]=============================================*/
+#include "../../tp/inc/sep.h"
+
+#include <string.h>
+
+#include "FreeRTOS.h"
+#include "task.h"
+
 
 /*=====[Inclusions of private function dependencies]=========================*/
 
@@ -31,35 +34,81 @@
 /*=====[Prototypes (declarations) of private functions]======================*/
 
 /*=====[Implementations of public functions]=================================*/
-sepHandle_t sepInit(uartManagerConfig_t config)
+void sepInit(sepHandle_t* me, uartManagerHandle_t uartHandle)
 {
-	sepHandle_t handle;
+	me->uartHandle = uartHandle;
+}
 
+sepError_t sepGet(sepHandle_t* me, sepData_t* data, uint32_t timeout)
+{
+	sepError_t ret = SEP_ERROR;
+	uint32_t size;
+	uint8_t* msg;
 
-	//TODO: crear dos tareas rx y tx, y dos colas rx y tx
+	if (uartManagerGet( me->uartHandle, NULL, &size, timeout))
+	{
+		msg = (uint8_t *)pvPortMalloc(size);
 
-	return handle;
+		uartManagerGet( me->uartHandle, msg, &size, timeout);
+
+		if (msg[0] == 'm' || msg[0] == 'M' )
+		{
+			switch (msg[0])
+			{
+				case 'm':
+					data->event = TO_LOWER;
+					break;
+
+				case 'M':
+					data->event = TO_UPPER;
+					break;
+			}
+
+			data->msg = (uint8_t*)pvPortMalloc(size);
+			strcpy(data->msg, msg + 1);
+			data->msg[size] = '\0';
+
+			ret = SEP_OK;
+		}
+
+		vPortFree(msg);
+	}
+
+	return ret;
 }
 
 
-void sepDeinit(sepHandle_t handle)
+sepError_t sepPut(sepHandle_t* me, sepData_t* data, uint32_t timeout)
 {
+	sepError_t ret = SEP_ERROR;
+	uint8_t* msg;
 
-}
+	msg = (uint8_t *)pvPortMalloc(strlen(data->msg) + 1);
 
+	switch(data->event)
+	{
+		case TO_UPPER:
+			*msg = 'M';
+			strcpy(msg + 1, data->msg);
+			break;
+		case TO_LOWER:
+			*msg = 'm';
+			strcpy(msg + 1, data->msg);
+			break;
+		case TO_ERROR:
+			strcpy(msg, data->msg);
+			break;
+	}
 
-sepError_t sepGet(sepHandle_t handle, sepData_t* data, uint32_t* size, uint32_t timeout)
-{
+	if(uartManagerPut(me->uartHandle, msg, timeout))
+	{
+		ret = SEP_OK;
+	}
 
+	vPortFree(data->msg);
+	vPortFree(msg);
 
-	return SEP_OK;
-}
-
-
-sepError_t sepPut(sepHandle_t handle, sepData_t* data, uint32_t timeout)
-{
-
-	return SEP_OK;
+	return ret;
 }
 
 
